@@ -1,5 +1,3 @@
-import "@keybr/themes/lib/index.less";
-import "./desktop.css";
 import { ErrorHandler } from "@keybr/debug";
 import { loadIntl } from "@keybr/intl";
 import { KeyboardProvider } from "@keybr/keyboard";
@@ -7,12 +5,13 @@ import { PageDataContext, type PageData } from "@keybr/pages-shared";
 import { ResultLoader } from "@keybr/result-loader";
 import { SettingsLoader } from "@keybr/settings-loader";
 import { PortalContainer } from "@keybr/widget";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { RawIntlProvider } from "react-intl";
 import { HashRouter, NavLink, Navigate, Route, Routes } from "react-router";
 import { BackupPage } from "./BackupPage.tsx";
-import { DesktopThemeProvider, ThemeControls } from "./theme.tsx";
+import { DesktopThemeProvider, initializeDesktopTheme, ThemeControls } from "./theme.tsx";
+import { installTypingFocus } from "./typing-focus.mjs";
 
 const Practice = lazy(() => import("@keybr/page-practice").then((m) => ({ default: m.PracticePage })));
 const Profile = lazy(() => import("@keybr/page-profile").then((m) => ({ default: m.ProfilePage })));
@@ -20,6 +19,7 @@ const TypingTest = lazy(() => import("@keybr/page-typing-test").then((m) => ({ d
 const Help = lazy(() => import("@keybr/page-help").then((m) => ({ default: m.HelpPage })));
 
 export async function main() {
+  initializeDesktopTheme();
   const intl = await loadIntl("en");
   const pageData: PageData = {
     base: new URL("./", window.location.href).href,
@@ -55,7 +55,12 @@ export async function main() {
 }
 
 function Desktop() {
+  const workspaceRef = useRef<HTMLElement>(null);
   const [notice, setNotice] = useState("");
+  useEffect(() => {
+    const workspace = workspaceRef.current;
+    if (workspace) return installTypingFocus(workspace);
+  }, []);
   useEffect(() => {
     const notify = () => setNotice("That link requires an online service. This app stays offline; use Backup to move your data.");
     window.addEventListener("desktop-offline-link", notify);
@@ -75,12 +80,12 @@ function Desktop() {
         <ThemeControls />
       </header>
       {notice && <aside className="desktop-notice" role="status">{notice} <button onClick={() => setNotice("")}>Dismiss</button></aside>}
-      <main className="desktop-main" id="desktop-workspace">
+      <main ref={workspaceRef} className="desktop-main" id="desktop-workspace">
         <Suspense fallback={<p role="status">Loading bundled page…</p>}>
           <Routes>
-            <Route path="/" element={<section data-testid="practice-page"><Practice /></section>} />
+            <Route path="/" element={<section data-desktop-typing-page="" data-testid="practice-page"><Practice /></section>} />
             <Route path="/profile" element={<section data-testid="profile-page"><Profile /></section>} />
-            <Route path="/typing-test" element={<KeyboardProvider><section data-testid="typing-test-page"><TypingTest /></section></KeyboardProvider>} />
+            <Route path="/typing-test" element={<KeyboardProvider><section data-desktop-typing-page="" data-testid="typing-test-page"><TypingTest /></section></KeyboardProvider>} />
             <Route path="/help" element={<section data-testid="help-page"><Help /></section>} />
             <Route path="/backup" element={<BackupPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

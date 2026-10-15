@@ -11,15 +11,24 @@ function initialPrefs() {
   return ThemePrefs.deserialize(localStorage.getItem(THEME_KEY));
 }
 
+function applyPrefs(prefs: ThemePrefs) {
+  for (const [name, value] of Object.entries(ThemePrefs.dataAttributes(prefs))) {
+    document.documentElement.setAttribute(name, value);
+  }
+}
+
+export function initializeDesktopTheme() {
+  // The website supplies these attributes before React measures charts/keyboard.
+  applyPrefs(initialPrefs());
+}
+
 export function DesktopThemeProvider({ children }: { children: ReactNode }) {
   const [prefs, setPrefs] = useState(initialPrefs);
   const [hash, setHash] = useState(0);
   const [fullscreenState, setFullscreen] = useState(false);
   usePreferredColorScheme();
   useEffect(() => {
-    for (const [name, value] of Object.entries(ThemePrefs.dataAttributes(prefs))) {
-      document.documentElement.setAttribute(name, value);
-    }
+    applyPrefs(prefs);
     localStorage.setItem(THEME_KEY, ThemePrefs.serialize(prefs));
     let cancelled = false;
     if (prefs.color === "custom") {
@@ -29,6 +38,12 @@ export function DesktopThemeProvider({ children }: { children: ReactNode }) {
     }
     return () => { cancelled = true; };
   }, [prefs, hash]);
+  const switchPrefs = (next: ThemePrefs) => {
+    // Apply before rendering consumers that read computed colors and font sizes.
+    applyPrefs(next);
+    setPrefs(next);
+    setHash((value) => value + 1);
+  };
   const toggleFullscreen = () => {
     if (isTauri()) {
       invoke<boolean>("toggle_fullscreen").then(setFullscreen).catch(console.error);
@@ -41,8 +56,8 @@ export function DesktopThemeProvider({ children }: { children: ReactNode }) {
   return (
     <ThemeContext.Provider value={{
       ...prefs, hash, fullscreenState, toggleFullscreen,
-      switchColor: (color) => setPrefs(new ThemePrefs({ ...prefs, color })),
-      switchFont: (font) => setPrefs(new ThemePrefs({ ...prefs, font })),
+      switchColor: (color) => switchPrefs(new ThemePrefs({ ...prefs, color })),
+      switchFont: (font) => switchPrefs(new ThemePrefs({ ...prefs, font })),
       refresh: () => setHash((value) => value + 1),
     }}>{children}</ThemeContext.Provider>
   );

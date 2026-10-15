@@ -1,4 +1,7 @@
 import "core-js/stable";
+// Initial CSS must load before React, lesson measurements and input focus.
+import "@keybr/themes/lib/index.less";
+import "./desktop.css";
 import { installNetworkPolicy } from "./network-policy.mjs";
 
 installNetworkPolicy();

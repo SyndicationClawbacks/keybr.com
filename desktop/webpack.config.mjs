@@ -112,6 +112,8 @@ export default {
       { test: /\.[cm]?jsx?$/, exclude: /[\\/]core-js[\\/]/, use: [babel] },
       {
         test: /\.less$/,
+        // @keybr/themes declares sideEffects:false. Its global CSS still MUST run.
+        sideEffects: true,
         use: [MiniCssExtractPlugin.loader, {
           loader: "css-loader",
           options: {
@@ -125,7 +127,7 @@ export default {
           },
         }, "less-loader"],
       },
-      { test: /\.css$/, use: [MiniCssExtractPlugin.loader, "css-loader"] },
+      { test: /\.css$/, sideEffects: true, use: [MiniCssExtractPlugin.loader, "css-loader"] },
       {
         // Upstream includes binary .stats examples as well as phonetic .data files.
         test: /\.(?:data|stats|woff2?|ttf|otf|svg|png|jpe?g|gif|webp|ico|wav|mp3|ogg)$/i,
@@ -152,6 +154,20 @@ export default {
   ],
   devtool: false,
   performance: false,
-  optimization: { splitChunks: { chunks: "all" } },
+  optimization: {
+    splitChunks: {
+      chunks: "all",
+      cacheGroups: {
+        // Link one complete local stylesheet in index.html, before React starts.
+        // This includes fonts, theme variables and lazy lesson-page styles.
+        desktopStyles: {
+          name: "desktop-styles",
+          type: "css/mini-extract",
+          chunks: "all",
+          enforce: true,
+        },
+      },
+    },
+  },
   stats: "errors-warnings",
 };

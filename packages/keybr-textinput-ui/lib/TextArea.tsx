@@ -96,7 +96,12 @@ export function TextArea({
     event.preventDefault();
   };
   return (
-    <div ref={ref} className={styles.root} onClick={handleClick}>
+    <div
+      ref={ref}
+      className={styles.root}
+      data-keybr-typing-area={demo ? undefined : ""}
+      onClick={handleClick}
+    >
       <TextEvents
         focusRef={innerRef}
         onFocus={handleFocus}
