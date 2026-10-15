@@ -1,50 +1,38 @@
 # Keybr Desktop — offline Tauri edition
 
-Independent desktop adaptation of Keybr. This is **not a wrapper around the live website**: Webpack bundles the lesson engine, practice pages, models, word lists, books, fonts, and imported assets. Tauri embeds those files. No Node server, Docker service, account, or connection to keybr.com is needed for the installed app.
+Independent desktop adaptation of the Keybr source in this repository, not a wrapper around the live website. Webpack bundles the lesson engine, pages, phonetic models, word lists, books, fonts, and other imported assets. Tauri embeds that output in the app rather than running a Node server or Docker service.
 
-## Intended targets
+## Build automation
 
-| Platform | CI output | Notes |
+**Automatic CI and desktop smoke tests have been removed at the repository owner's request.** There are no push, pull-request, or scheduled workflow triggers on this branch. Playwright, its configuration, the desktop JavaScript test files, browser installation steps, and test-report uploads are removed. The inherited `.github/workflows/ci.yml` is removed as well. Upstream test source files elsewhere in the repository are unchanged.
+
+The sole remaining workflow is **Build desktop installers (manual)**. It contains packaging jobs only and runs solely through `workflow_dispatch`; adding or merging it does not start a build. It does not execute JavaScript or Rust test suites. Once this workflow exists on the default branch, use **Actions → Build desktop installers (manual) → Run workflow** to request installers. A new fork may first require enabling Actions. Successful builds upload `Keybr-Desktop-*` artifacts retained for 30 days. No release is automatically published and the app has no automatic updater.
+
+Previously started runs are not retroactively cancelled by a source change. Historical run records and already delivered notifications are separate from workflow source files.
+
+## Intended platforms and current status
+
+| Platform | Configured installer | Target |
 | --- | --- | --- |
 | macOS 12 Monterey and newer | Universal `.dmg` | Intel and Apple Silicon; deployment target `12.0`. |
-| Fedora GNOME, x86_64 | `.rpm` | Built on Ubuntu 22.04 for an older glibc baseline; requires GTK3 and WebKitGTK 4.1. |
-| Windows, x86_64 | NSIS setup `.exe` | Includes the offline WebView2 installer rather than a setup-time download. |
+| Fedora GNOME | `.rpm` | x86_64; GTK3 and WebKitGTK 4.1. |
+| Windows | NSIS `.exe` | x86_64; configured with offline WebView2 installer. |
 
-A deployment target is not proof of runtime compatibility. Launch, typing, persistence, audio, fullscreen, and backup dialogs need manual checks on actual Monterey, Fedora GNOME, and Windows installations. The CI WebKit test is not a Monterey VM. Windows ARM and Linux ARM installers are not included in this matrix.
+These are configured targets, not verified working installers. Native launch, typing, persistence, audio, fullscreen, and dialogs on the requested operating systems remain unverified. Removing tests does not establish that the app is working. The frontend targets Safari 15.0 with Babel, core-js stable polyfills, and Lightning CSS, but a deployment target and transpilation do not prove Monterey compatibility. Windows ARM and Linux ARM packages are not configured.
 
-## Downloading installers
+## Local builds
 
-Open this fork's **Actions → Desktop builds**, select a successful run, download the `Keybr-Desktop-*` artifact for your OS, and extract the ZIP. Installers exist only after the corresponding job succeeds. Artifacts are retained for 30 days. This workflow does not publish a release or silently update installed applications.
-
-On a new fork, GitHub may require enabling Actions first. Pushing to `master` or `desktop/**` triggers the workflow. Once the workflow is on the default branch, **Run workflow** is also available.
-
-Mac builds are ad-hoc signed, not Developer-ID signed or notarized. Windows builds are not Authenticode signed. Security warnings are expected. Use only the operating system's per-app approval process for a build you trust; do not disable system security globally. No signing credentials are included or requested.
-
-On Fedora, install the downloaded RPM with dependencies through DNF:
+Install Git, Node compatible with the current upstream dependencies, Rust stable, and the Tauri prerequisites for the build machine. The optional packaging workflow uses Node 26. From the repository root:
 
 ```sh
-sudo dnf install ./keybr-desktop-*.rpm
-```
-
-Substitute the exact downloaded filename if the pattern does not match. The package includes an application-menu entry.
-
-## Building locally
-
-Build prerequisites: Git, **Node 26.9 or newer**, Rust stable (at least 1.90), and the Tauri native prerequisites for the build OS. Node is used only for building; it is not shipped as a sidecar and is not needed by users installing the app. Modern build-tool compatibility with Monterey itself is separate from compatibility of the final Monterey-targeted application; the CI universal build avoids having to build on the old OS.
-
-Clone this fork and check out the implementation branch, then run from the repository root:
-
-```sh
-git switch desktop/tauri-offline
 npm ci
 npm install --prefix desktop
-npm --prefix desktop test
 npm --prefix desktop run dev
 ```
 
-`dev` builds assets and opens the embedded application origin. It does not run a permanent localhost server. Re-run after frontend changes; this adapter has no hot-reload server.
+`dev` builds local assets and opens the native app using its embedded-asset origin. Re-run after frontend edits; this adapter does not use a hot-reload server.
 
-For the universal Mac build, install Xcode Command Line Tools and both Rust targets:
+On macOS, install Xcode Command Line Tools, then build a universal installer:
 
 ```sh
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
@@ -58,72 +46,42 @@ sudo dnf install webkit2gtk4.1-devel openssl-devel curl wget file libappindicato
 npm --prefix desktop run build -- --bundles rpm
 ```
 
-On Windows, install Microsoft C++ Build Tools with the desktop C++ workload, Windows SDK, Rust MSVC toolchain, and WebView2:
+On Windows, install the Microsoft C++ Build Tools with the desktop C++ workload, Windows SDK, Rust MSVC toolchain, and WebView2, then run:
 
 ```powershell
 npm --prefix desktop run build -- --bundles nsis
 ```
 
-Installers are under `desktop/src-tauri/target/**/bundle/`. End users do not need Node, Rust, Git, or a compiler.
+Installers are written under `desktop/src-tauri/target/**/bundle/`. End users do not need Node, Rust, Git, or a compiler to install a built app. Building on Monterey itself is separate from running a Monterey-targeted binary; a universal package can be built on a newer Mac.
 
-The root npm lockfile is untouched and installed with `npm ci`. Desktop tooling is a separate npm project. CI uploads the resolved `desktop/package-lock.json` and `desktop/src-tauri/Cargo.lock` in build-manifest artifacts. Commit these resolved lockfiles before treating a build as a reproducible release; version ranges alone do not pin transitive dependencies.
+The upstream npm lockfile is unchanged. Desktop tooling is a separate npm project; retain and commit its generated `desktop/package-lock.json` and `desktop/src-tauri/Cargo.lock` before treating builds as reproducible. Dependency ranges alone do not pin all transitive versions.
 
-## Included features and storage
+## Installation and signing
 
-This adapter reuses upstream practice (including lesson settings), statistics, typing test, help, keyboard languages, and anonymous-user storage. The desktop interface is English. Accounts, cloud sync, public profiles, multiplayer, high scores, payments, ads, analytics, and update checks are intentionally absent.
+Mac builds are ad-hoc signed, not Developer-ID signed or notarized. Windows builds are not Authenticode signed. Downloaded builds may show OS security warnings. Use per-app approval only for a build you trust; do not disable OS security globally. No signing credentials are requested or stored.
 
-History uses Keybr's IndexedDB store. Lesson settings use its local settings storage. Theme/font preferences use localStorage instead of website cookies. The stable app identifier is `io.github.syndicationclawbacks.keybr`. Changing that identifier or the internal origin can separate the app from previously saved data. Website/browser history remains separate and is not automatically migrated. Export a backup before uninstalling, resetting app data, or moving computers.
+On Fedora, install a downloaded RPM with `sudo dnf install ./<downloaded-file>.rpm`. The package includes an application-menu entry.
 
-**Backup & about → Export backup** opens a native Save dialog. Backups are plain JSON with a versioned format. **Import backup** validates records and presents a confirmation. Import merges history in an IndexedDB transaction, skips duplicate records, and never clears existing history. Replacing lesson settings and theme preferences is a separate, initially unchecked option. A failed settings restore after a successful merge can be retried safely because the history merge is idempotent.
+## Features and local data
 
-This is the adapter's backup format, not a promise of compatibility with every website export. Backups include history, lesson settings, and color/font preferences, but not the custom-theme artwork database. They are not encrypted. Keep backups private when appropriate. There is no automatic cross-device sync.
+The adapter reuses practice and lesson settings, profile/statistics, typing test, help, keyboard languages, and anonymous-user storage. Navigation is desktop-specific and the UI locale is English. It excludes account login, public profiles, cloud sync, multiplayer, high scores, payments, advertising, and analytics.
 
-## Offline and security design
+History uses Keybr's IndexedDB store; lesson settings use its existing local storage. Theme preferences use a dedicated localStorage key rather than website cookies. Keep the application identifier `io.github.syndicationclawbacks.keybr` stable because storage can depend on app identity and origin. Website history is separate and is not migrated automatically. Export a backup before uninstalling, resetting app data, or changing computers.
 
-- The separate frontend entry excludes the website shell and online-only pages. A module-graph audit rejects server or third-party integration packages in the desktop build.
-- Dynamic lesson assets are included by Webpack and embedded by Tauri. The build checks for bundled phonetic models. Custom binary `.data` and `.stats` assets are explicitly served as `application/octet-stream` by the native window.
-- A restrictive Content Security Policy permits local content and Tauri IPC, not external scripts, fonts, images, frames, form submissions, or connections. Browser tests use the same policy.
-- The frontend rejects nonlocal fetch/XHR, WebSocket/EventSource, beacons, and popups. Native navigation permits only the application's exact internal origins and denies new windows.
-- Native commands provide backup dialogs and fullscreen, not arbitrary filesystem or shell access. File paths come from the user's native picker. Exports use a temporary file and atomic replacement; imports have a 64 MiB read limit.
-- The website normally renders the popup/tooltip container on the server. The desktop entry creates it before rendering React so upstream dialogs work without a server.
+**Backup & about → Export backup** opens a native Save dialog. **Import backup** validates a versioned JSON backup and asks for confirmation. History is merged in one IndexedDB transaction with duplicate records skipped, without clearing existing history. Replacing lesson settings and theme preferences is a separate unchecked option. A failed settings restore after a successful history merge can be retried without duplicating history.
 
-These are restrictions on this app's code, not a guarantee that the OS or WebView2 will never make its own update or telemetry request. Downloading build dependencies, CI tooling, and operating-system prerequisites requires internet access.
+This is the adapter's backup format, not a claim of compatibility with every website export. Backups include history, lesson settings, and color/font preferences, but not custom-theme artwork. They are not encrypted and may contain custom practice text.
 
-## Validation
+## Offline protections
 
-```sh
-npm --prefix desktop test
-npm --prefix desktop run build:web
-cd desktop
-npx playwright install --with-deps chromium webkit
-npm run test:smoke
-```
+The dedicated frontend excludes the website shell, server, and third-party integrations. The build refuses integration packages and requires bundled phonetic models. A restrictive Content Security Policy permits local assets and Tauri IPC rather than external scripts, fonts, images, frames, forms, or connections. Frontend guards block nonlocal fetch/XHR, WebSockets, EventSource, beacons, and popups. Native navigation is restricted to the app's internal origins; native popup requests are denied.
 
-The dependency-free Node tests cover URL allowlists (including opaque-origin attacks), backup format validation, duplicate-safe merging, and production configuration. Playwright loads bundled pages and models, rejects outside requests, checks missing assets and uncaught errors, and verifies theme/font persistence across reloads. After a native build:
+Native commands expose backup dialogs and fullscreen only. File paths come from user-operated native dialogs rather than arbitrary frontend path strings. Exports use temporary files and atomic replacement; imports have a 64 MiB limit. There are no shell, opener, HTTP, or general filesystem plugins exposed to the frontend. These runtime protections are unchanged by the removal of automated tests.
 
-```sh
-cargo test --manifest-path desktop/src-tauri/Cargo.toml
-```
+This describes application policy, not a promise that the OS or WebView2 never makes its own update or telemetry requests. Downloading dependencies and OS prerequisites also requires internet access.
 
-The frontend targets **Safari 15.0**, the WebKit baseline for early Monterey, with Babel, core-js stable polyfills, and Lightning CSS. APIs or dynamic CSS that cannot be transpiled still need real Monterey testing. CI is not a claim of exhaustive coverage of every lesson mode, language, keystroke, audio device, or OS feature.
+## Upstream and license
 
-Manual acceptance on each target OS:
+Prepared against upstream commit `05a37bc5265f65ff538c59c613db29442f345d51`. The original `LICENSE` and copyright notices remain unchanged, and the build embeds an exact copy as `LICENSE.txt`. The adaptation uses the repository's existing license. This is an independent fork, not an official Keybr desktop release.
 
-1. Disconnect networking and launch the installed app, not the browser preview.
-2. Finish a lesson, change settings, close and reopen. Verify history and preferences survive.
-3. Try another keyboard language, typing test, statistics, sound, and fullscreen.
-4. Export a backup, import it on another machine, and import it again to verify duplicate suppression.
-5. Confirm the app makes no requests to keybr.com, advertising, or analytics services.
-
-## Attribution and license
-
-Prepared against upstream commit `05a37bc5265f65ff538c59c613db29442f345d51`. The original AGPL-3.0 license and notices remain unchanged. An exact copy is embedded as `LICENSE.txt`. This is an independent fork, not an official Keybr desktop release.
-
-- Upstream: https://github.com/aradzie/keybr.com
-- Fork: https://github.com/SyndicationClawbacks/keybr.com
-- https://v2.tauri.app/start/prerequisites/
-- https://v2.tauri.app/reference/webview-versions/
-- https://v2.tauri.app/distribute/macos-application-bundle/
-- https://v2.tauri.app/distribute/rpm/
-- https://v2.tauri.app/distribute/windows-installer/
-- https://v2.tauri.app/plugin/dialog/
+Tauri prerequisites: https://v2.tauri.app/start/prerequisites/

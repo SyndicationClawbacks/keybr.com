@@ -1,64 +1,19 @@
-name: Desktop builds
+name: Build desktop installers (manual)
 
+# No automatic triggers or test jobs.
 on:
-  push:
-    branches: [master, "desktop/**"]
-    paths:
-      - "desktop/**"
-      - ".github/workflows/desktop.yml"
-      - "packages/**"
-      - "scripts/**"
-      - "package*.json"
   workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: desktop-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   HUSKY: "0"
   MACOSX_DEPLOYMENT_TARGET: "12.0"
 
 jobs:
-  web:
-    name: Offline web tests
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "26"
-          cache: npm
-      - name: Install upstream locked dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Install desktop tooling
-        run: npm install --prefix desktop --no-audit --no-fund
-      - name: Unit tests and production frontend build
-        run: |
-          npm --prefix desktop test
-          npm --prefix desktop run build:web
-      - name: Install browser test runtimes
-        working-directory: desktop
-        run: npx playwright install --with-deps chromium webkit
-      - name: Chromium and WebKit offline smoke tests
-        run: npm --prefix desktop run test:smoke
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: desktop-web-test-report
-          path: |
-            desktop/playwright-report/
-            desktop/test-results/
-            desktop/dist/bundle-audit.json
-            desktop/package-lock.json
-          retention-days: 14
-
-  native:
+  package:
     name: ${{ matrix.name }}
-    needs: web
     strategy:
       fail-fast: false
       matrix:
@@ -99,8 +54,6 @@ jobs:
         run: npm install --prefix desktop --no-audit --no-fund
       - name: Build native installer
         run: npm --prefix desktop run build -- ${{ matrix.args }}
-      - name: Rust security tests
-        run: cargo test --manifest-path desktop/src-tauri/Cargo.toml
       - uses: actions/upload-artifact@v4
         with:
           name: Keybr-Desktop-${{ matrix.name }}
@@ -109,13 +62,4 @@ jobs:
             desktop/src-tauri/target/**/bundle/dmg/*.dmg
             desktop/src-tauri/target/**/bundle/nsis/*.exe
             desktop/src-tauri/target/**/bundle/rpm/*.rpm
-          retention-days: 30
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: build-manifest-${{ matrix.name }}
-          path: |
-            desktop/package-lock.json
-            desktop/src-tauri/Cargo.lock
-            desktop/dist/bundle-audit.json
           retention-days: 30
