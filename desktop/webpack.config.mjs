@@ -12,7 +12,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repo = dirname(here);
 const require = createRequire(import.meta.url);
 const tauri = JSON.parse(readFileSync(join(here, "src-tauri/tauri.conf.json"), "utf8"));
-const browserTargets = { safari: "15.6" };
+const browserTargets = { safari: "15.0" };
 const babel = {
   loader: require.resolve("babel-loader"),
   options: {
@@ -40,7 +40,7 @@ class DesktopAuditPlugin {
                 filename: name,
                 code: Buffer.from(source.source()),
                 minify: true,
-                targets: { safari: (15 << 16) | (6 << 8) },
+                targets: { safari: 15 << 16 },
               });
               compilation.updateAsset(name, new webpack.sources.RawSource(result.code));
             }
@@ -55,7 +55,6 @@ class DesktopAuditPlugin {
             .filter(Boolean)
             .map((path) => relative(repo, path).replaceAll("\\", "/"))
             .sort();
-          // Fail closed: these integrations must never enter the desktop graph.
           const forbidden = modules.filter((path) =>
             /(?:^|\/)packages\/(?:thirdparties(?:-[^/]+)?|server|server-cli)\//.test(path),
           );
@@ -69,7 +68,6 @@ class DesktopAuditPlugin {
           compilation.emitAsset("bundle-audit.json", new webpack.sources.RawSource(
             JSON.stringify({ offline: forbidden.length === 0, modules, assets }, null, 2),
           ));
-          // Retain the exact upstream license and source attribution in the app.
           compilation.emitAsset("LICENSE.txt", new webpack.sources.RawSource(readFileSync(join(repo, "LICENSE"))));
         },
       );
@@ -129,7 +127,8 @@ export default {
       },
       { test: /\.css$/, use: [MiniCssExtractPlugin.loader, "css-loader"] },
       {
-        test: /\.(?:data|woff2?|ttf|otf|svg|png|jpe?g|gif|webp|ico|wav|mp3|ogg)$/i,
+        // Upstream includes binary .stats examples as well as phonetic .data files.
+        test: /\.(?:data|stats|woff2?|ttf|otf|svg|png|jpe?g|gif|webp|ico|wav|mp3|ogg)$/i,
         type: "asset/resource",
       },
     ],
@@ -147,7 +146,6 @@ export default {
     new HtmlWebpackPlugin({
       template: join(here, "index.html"),
       scriptLoading: "defer",
-      // Also enforce the policy in the browser smoke tests, not only in Tauri.
       meta: { "Content-Security-Policy": { "http-equiv": "Content-Security-Policy", content: tauri.app.security.csp } },
     }),
     new DesktopAuditPlugin(),
