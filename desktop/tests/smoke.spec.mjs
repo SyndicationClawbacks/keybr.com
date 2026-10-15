@@ -1,11 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-test("bundled practice, statistics, test, and help load without outside requests", async ({ page }) => {
+test("bundled practice, statistics, test, and help load without outside requests", async ({ page }, testInfo) => {
   const external = [];
   const errors = [];
   const failedAssets = [];
   const models = [];
   page.on("pageerror", (error) => errors.push(String(error)));
+  page.on("console", (message) => {
+    if (message.type() === "error") console.error(`[browser] ${message.text()}`);
+  });
   page.on("response", (response) => {
     if (response.status() >= 400) failedAssets.push(`${response.status()} ${response.url()}`);
     if (response.url().endsWith(".data")) models.push(response.url());
@@ -21,6 +24,7 @@ test("bundled practice, statistics, test, and help load without outside requests
   await expect(page.getByTestId("practice-page")).toBeVisible();
   await expect.poll(() => models.length).toBeGreaterThan(0);
   await page.waitForLoadState("networkidle");
+  await page.screenshot({ path: testInfo.outputPath("practice.png"), fullPage: true });
   for (const [name, id] of [["Statistics", "profile-page"], ["Typing test", "typing-test-page"], ["Help", "help-page"], ["Backup & about", "backup-page"]]) {
     await page.getByRole("navigation", { name: "Desktop pages" }).getByRole("link", { name, exact: true }).click();
     await expect(page.getByTestId(id)).toBeVisible();

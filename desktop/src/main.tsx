@@ -6,6 +6,7 @@ import { KeyboardProvider } from "@keybr/keyboard";
 import { PageDataContext, type PageData } from "@keybr/pages-shared";
 import { ResultLoader } from "@keybr/result-loader";
 import { SettingsLoader } from "@keybr/settings-loader";
+import { PortalContainer } from "@keybr/widget";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { RawIntlProvider } from "react-intl";
@@ -29,6 +30,13 @@ export async function main() {
   };
   const root = document.getElementById("desktop-root");
   if (!root) throw new Error("Missing desktop root");
+  // The website's server-rendered shell creates this before React starts.
+  // Portals query it during render, so a React sibling would be too late.
+  if (!document.getElementById(PortalContainer.id)) {
+    const portal = document.createElement("div");
+    portal.id = PortalContainer.id;
+    document.body.append(portal);
+  }
   createRoot(root).render(
     <PageDataContext.Provider value={pageData}>
       <ErrorHandler>
