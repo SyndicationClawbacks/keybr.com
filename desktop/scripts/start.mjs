@@ -39,10 +39,7 @@ switch (process.platform) {
     ]);
     break;
   case "linux":
-    console.log("[Keybr Desktop] Linux source builds require Node 26.9+, Rust, GTK3 and WebKitGTK 4.1 development packages.");
-    run("npm", ["ci", "--no-audit", "--no-fund"]);
-    run("npm", ["install", "--prefix", "desktop", "--no-audit", "--no-fund"]);
-    run("npm", ["--prefix", "desktop", "run", "dev"]);
+    run("/bin/bash", [join(repo, "run-linux.sh")]);
     break;
   default:
     console.error(`[Keybr Desktop] Unsupported platform: ${process.platform}`);

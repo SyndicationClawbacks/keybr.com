@@ -5,6 +5,7 @@ import {
   makeSummaryStats,
 } from "@keybr/result";
 import { ExplainerBoundary } from "@keybr/widget";
+import { type ReactNode } from "react";
 import { AccuracyStreaksSection } from "./profile/AccuracyStreaksSection.tsx";
 import { CalendarSection } from "./profile/CalendarSection.tsx";
 import { DataScript } from "./profile/DataScript.tsx";
@@ -21,20 +22,30 @@ import { ShareProfileLink } from "./profile/ShareProfileLink.tsx";
 import { SpeedChartSection } from "./profile/SpeedChartSection.tsx";
 import { AllTimeSummary, TodaySummary } from "./profile/Summary.tsx";
 
-export function ProfilePage() {
+export function ProfilePage({
+  footer = <FooterSection />,
+}: { readonly footer?: ReactNode } = {}) {
   return (
     <Screen>
       <ExplainerBoundary>
         <ExplainProfile />
         <ResultGrouper>
-          {(keyStatsMap) => <Content keyStatsMap={keyStatsMap} />}
+          {(keyStatsMap) => (
+            <Content keyStatsMap={keyStatsMap} footer={footer} />
+          )}
         </ResultGrouper>
       </ExplainerBoundary>
     </Screen>
   );
 }
 
-function Content({ keyStatsMap }: { keyStatsMap: KeyStatsMap }) {
+function Content({
+  keyStatsMap,
+  footer,
+}: {
+  keyStatsMap: KeyStatsMap;
+  footer: ReactNode;
+}) {
   const { publicUser } = usePageData();
   const { results } = keyStatsMap;
   const stats = makeSummaryStats(results);
@@ -70,7 +81,7 @@ function Content({ keyStatsMap }: { keyStatsMap: KeyStatsMap }) {
         <ShareProfileLink user={publicUser as NamedUser} />
       )}
 
-      <FooterSection />
+      {footer}
     </>
   );
 }

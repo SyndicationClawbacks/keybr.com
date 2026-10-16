@@ -9,6 +9,7 @@
     "icons": "tauri icon icon.svg --output src-tauri/icons",
     "dev": "npm run icons && tauri dev",
     "build": "npm run icons && tauri build",
+    "build:app": "node scripts/build-native.mjs",
     "tauri": "tauri",
     "serve": "node scripts/serve.mjs"
   },

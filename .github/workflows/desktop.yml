@@ -1,4 +1,4 @@
-name: Build desktop installers (manual)
+name: Build desktop apps (manual)
 
 # No automatic triggers or test jobs.
 on:
@@ -21,15 +21,15 @@ jobs:
           - name: macOS-universal-12-plus
             os: macos-latest
             targets: aarch64-apple-darwin,x86_64-apple-darwin
-            args: --target universal-apple-darwin --bundles dmg
+            artifact: desktop/releases/Keybr-Desktop-macOS-universal.tar.gz
           - name: Fedora-x86_64
             os: ubuntu-22.04
             targets: x86_64-unknown-linux-gnu
-            args: --target x86_64-unknown-linux-gnu --bundles rpm
+            artifact: desktop/releases/Keybr-Desktop-Linux-x64.tar.gz
           - name: Windows-x86_64
             os: windows-latest
             targets: x86_64-pc-windows-msvc
-            args: --target x86_64-pc-windows-msvc --bundles nsis
+            artifact: desktop/releases/Keybr-Desktop-Windows-x64/
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -51,15 +51,12 @@ jobs:
       - name: Install upstream locked dependencies
         run: npm ci --no-audit --no-fund
       - name: Install desktop tooling
-        run: npm install --prefix desktop --no-audit --no-fund
-      - name: Build native installer
-        run: npm --prefix desktop run build -- ${{ matrix.args }}
+        run: npm ci --prefix desktop --no-audit --no-fund
+      - name: Build app and local installation script
+        run: npm --prefix desktop run build:app
       - uses: actions/upload-artifact@v4
         with:
           name: Keybr-Desktop-${{ matrix.name }}
           if-no-files-found: error
-          path: |
-            desktop/src-tauri/target/**/bundle/dmg/*.dmg
-            desktop/src-tauri/target/**/bundle/nsis/*.exe
-            desktop/src-tauri/target/**/bundle/rpm/*.rpm
+          path: ${{ matrix.artifact }}
           retention-days: 30

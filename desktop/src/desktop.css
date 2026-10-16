@@ -1,7 +1,12 @@
 /* Upstream owns lesson typography and layout. These rules frame the desktop app. */
-html, body { margin: 0; min-height: 100%; }
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
 /* The website applies these in its server-rendered shell, which we don't use. */
-body, :fullscreen {
+body,
+:fullscreen {
   color: var(--text-color);
   background-color: var(--background-color);
   background-image: var(--background-image, none);
@@ -10,25 +15,141 @@ body, :fullscreen {
   background-size: cover;
   background-repeat: no-repeat;
 }
-body { min-width: 680px; }
-.desktop-shell { min-height: 100vh; display: flex; flex-direction: column; }
-.desktop-header { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 0.85rem 1.25rem; border-bottom: var(--separator-border); }
-.desktop-header strong { white-space: nowrap; }
-.desktop-header small { font-weight: normal; opacity: 0.7; }
-.desktop-header nav { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-.desktop-header nav a { color: inherit; text-decoration: none; padding: 0.35rem 0; border-bottom: 2px solid transparent; }
-.desktop-header nav a.active { border-bottom-color: currentColor; }
-.desktop-controls { margin-left: auto; display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-.desktop-controls select { font: inherit; color: var(--text-color); background-color: var(--background-color); border: 1px solid #8888; border-radius: 0.25rem; padding: 0.35rem; }
-.desktop-main { flex: 1; width: 100%; min-width: 0; }
-.desktop-footer { padding: 1rem 1.25rem; border-top: var(--separator-border); font-size: 0.85rem; opacity: 0.75; }
-.desktop-notice { padding: 0.75rem 1.25rem; border-bottom: var(--separator-border); }
-.desktop-about { max-width: 52rem; padding: 1rem 2rem 3rem; margin: 0 auto; line-height: 1.6; }
-.desktop-about h1 { font-size: 1.7rem; }
-.desktop-about h2 { margin-top: 1.6rem; font-size: 1.15rem; }
-.desktop-about code { overflow-wrap: anywhere; }
-.desktop-actions { display: flex; gap: 0.75rem; margin: 1rem 0; }
-.desktop-import-preview { border: 1px solid #8888; padding: 0 1rem; }
-.desktop-about button, .desktop-controls button, .desktop-notice button { color: inherit; background: transparent; border: 1px solid #8888; border-radius: 0.3rem; padding: 0.45rem 0.8rem; cursor: pointer; font: inherit; }
-.desktop-about button:disabled { opacity: 0.5; cursor: default; }
-.desktop-header a:focus-visible, .desktop-about button:focus-visible, .desktop-controls button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+body {
+  min-width: 680px;
+}
+.desktop-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.desktop-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: var(--separator-border);
+}
+.desktop-brand {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  font: 700 1.15rem monospace;
+  letter-spacing: 0.14em;
+}
+.desktop-brand img {
+  flex: none;
+}
+.desktop-brand-caption {
+  display: block;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  font-weight: 400;
+  margin-top: 0.3rem;
+  opacity: 0.7;
+}
+.desktop-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.desktop-header nav a {
+  color: inherit;
+  text-decoration: none;
+  padding: 0.35rem 0;
+  border-bottom: 2px solid transparent;
+}
+.desktop-header nav a.active {
+  border-bottom-color: currentColor;
+}
+.desktop-controls {
+  margin-left: auto;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.desktop-controls select {
+  font: inherit;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  border: 1px solid #8888;
+  border-radius: 0.25rem;
+  padding: 0.35rem;
+}
+.desktop-main {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+.desktop-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.25rem;
+  border-top: var(--separator-border);
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+.desktop-footer > span:last-child {
+  margin-left: auto;
+}
+.desktop-local-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #648c71;
+}
+.desktop-notice {
+  padding: 0.75rem 1.25rem;
+  border-bottom: var(--separator-border);
+}
+.desktop-about {
+  max-width: 52rem;
+  padding: 1rem 2rem 3rem;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.desktop-about h1 {
+  font-size: 1.7rem;
+}
+.desktop-about h2 {
+  margin-top: 1.6rem;
+  font-size: 1.15rem;
+}
+.desktop-about code {
+  overflow-wrap: anywhere;
+}
+.desktop-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.desktop-import-preview {
+  border: 1px solid #8888;
+  padding: 0 1rem;
+}
+.desktop-about button,
+.desktop-controls button,
+.desktop-notice button {
+  color: inherit;
+  background: transparent;
+  border: 1px solid #8888;
+  border-radius: 0.3rem;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  font: inherit;
+}
+.desktop-about button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.desktop-header a:focus-visible,
+.desktop-about button:focus-visible,
+.desktop-controls button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}

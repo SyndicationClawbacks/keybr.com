@@ -1,5 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect x="32" y="32" width="960" height="960" rx="200" fill="#17212b"/>
-  <rect x="160" y="190" width="704" height="644" rx="100" fill="#70d6b0"/>
-  <path d="M315 305h90v180l170-180h120L484 525l227 210H584L405 567v168h-90z" fill="#17212b"/>
+  <defs>
+    <pattern id="scanlines" width="16" height="32" patternUnits="userSpaceOnUse">
+      <rect width="16" height="23" fill="white"/>
+    </pattern>
+    <mask id="stripes"><rect width="1024" height="1024" fill="url(#scanlines)"/></mask>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="210" fill="#d8d4c8"/>
+  <rect x="56" y="48" width="912" height="904" rx="190" fill="#f0ecdf"/>
+  <rect x="120" y="120" width="784" height="740" rx="108" fill="#293938"/>
+  <rect x="144" y="144" width="736" height="692" rx="88" fill="#142725"/>
+  <path d="M248 256h96v192h48l144-192h120L472 496l192 240H536L392 544h-48v192h-96z" fill="#c6e9a3" mask="url(#stripes)"/>
+  <path d="M664 680h128v56H664z" fill="#c6e9a3"/>
+  <rect x="736" y="886" width="64" height="12" rx="6" fill="#648c71"/>
 </svg>
