@@ -16,7 +16,7 @@ Statistics links to these native backups rather than trying to download through 
 
 Install the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/) and Rust. The root build scripts select/download checksum-verified Node 26.9, install both npm lockfiles with `npm ci`, then build a release app using the committed Cargo lockfile.
 
-- `build-desktop.ps1`: Windows app and Start-menu installation script.
+- `build-desktop.ps1`: Windows app, double-click installation launcher, and Start-menu installation script. Installation asks for a destination, defaults to the normal per-user app folder, and remembers custom locations through the Start shortcut.
 - `build-desktop.sh`: Linux app, icon and GNOME installation script, or a universal macOS `.app` and installation script.
 - `build-desktop.sh --native`: build just the current Mac architecture.
 
@@ -26,10 +26,10 @@ For frontend development, install root and desktop dependencies, then `npm --pre
 
 ## Compatibility
 
-| Platform | Build host | Installed app |
-| --- | --- | --- |
-| Windows | Windows with MSVC, SDK and Rust | Windows 10/11 with WebView2 |
-| Mac | macOS 13.5+ with Xcode tools and Rust | Target: macOS 12 Monterey+, Intel and Apple Silicon |
+| Platform     | Build host                                                   | Installed app                                                          |
+| ------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Windows      | Windows with MSVC, SDK and Rust                              | Windows 10/11 with WebView2                                            |
+| Mac          | macOS 13.5+ with Xcode tools and Rust                        | Target: macOS 12 Monterey+, Intel and Apple Silicon                    |
 | Fedora GNOME | Fedora with GTK3/WebKitGTK 4.1 development packages and Rust | Compatible Fedora libraries; build on the target machine when possible |
 
 The universal Mac app embeds both CPU architectures and targets macOS 12.0. Babel/core-js and Lightning CSS target Safari 15.0. Node 26 itself requires [macOS 13.5+](https://github.com/nodejs/node/blob/v26.9.0/BUILDING.md#platform-list), so building and running have different requirements. Actual Mac and Fedora native launch, audio and dialog behavior require those machines; a Windows build cannot establish that compatibility.

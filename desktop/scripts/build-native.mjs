@@ -95,10 +95,16 @@ const installer =
       ? "install-macos.sh"
       : "install-linux.sh";
 copyFileSync(join(repo, installer), join(release, installer));
+if (platform === "win32") {
+  copyFileSync(
+    join(repo, "Install Keybr.cmd"),
+    join(release, "Install Keybr.cmd"),
+  );
+}
 copyFileSync(join(repo, "LICENSE"), join(release, "LICENSE.txt"));
 writeFileSync(
   join(release, "READ-ME.txt"),
-  `Keybr Desktop — ${label}\n\n${platform === "win32" ? "Right-click install-windows.ps1 and choose Run with PowerShell, or run:\npowershell -NoProfile -ExecutionPolicy Bypass -File .\\install-windows.ps1" : `Run: bash ${installer}`}\n\nQuit Keybr before updating. Progress is kept in the app's data directory.\nThis folder includes the whole app. Node and Rust are only needed to build it.\nSource: https://github.com/SyndicationClawbacks/keybr.com/tree/desktop/tauri-offline\n`,
+  `Keybr Desktop — ${label}\n\n${platform === "win32" ? "Double-click Install Keybr.cmd. Press Enter for the normal per-user app folder,\nor type a different installation folder when asked. Then open Keybr Desktop from Start.\nAlternatively run: powershell -NoProfile -ExecutionPolicy Bypass -File .\\install-windows.ps1" : `Run: bash ${installer}`}\n\nQuit Keybr before updating. Progress is kept in the app's data directory.\nThis folder includes the whole app. Node and Rust are only needed to build it.\nAfter installation, the source and extracted release folders can be removed.\nKeep the installed app folder and its separate app data.\nSource: https://github.com/SyndicationClawbacks/keybr.com/tree/desktop/tauri-offline\n`,
 );
 if (platform !== "win32") {
   run("tar", [

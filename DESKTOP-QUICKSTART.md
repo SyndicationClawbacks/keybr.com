@@ -10,11 +10,13 @@ From this checkout, run in PowerShell:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\run-windows.ps1
 ```
 
-On first use it builds and installs the app in `%LOCALAPPDATA%\Programs\Keybr Desktop`, adds **Keybr Desktop** to Start, and opens it. Afterward use Start or pin it to your taskbar. No terminal or development server needs to stay open. The same command opens the installed app immediately on later runs.
+On first use it builds the app and asks where to install it. Press Enter for `%LOCALAPPDATA%\Programs\Keybr Desktop`, the normal per-user application location, or enter another full folder path. It adds **Keybr Desktop** to Start and opens it. Afterward press the Windows key, type **Keybr**, and press Enter, or pin it to your taskbar. No terminal or development server needs to stay open. The same command opens the installed app immediately on later runs, including custom installation locations.
+
+The installed app contains everything it needs to run. You can delete the source checkout and extracted release folder after installation; keep the installed application folder and its separate app data. Your typing progress is stored separately from the source code.
 
 A source build needs [Rust (MSVC)](https://rustup.rs/) and [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with **Desktop development with C++** and the Windows SDK. The build script downloads a checksum-verified Node 26.9 runtime into this checkout if needed; it does not replace system Node. Windows also needs [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/), normally already installed on Windows 10/11.
 
-If you already have a built release folder, run its `install-windows.ps1` instead. That requires no compilers or Node.
+If you already have a built release folder, double-click **Install Keybr.cmd** inside it. That requires no compilers or Node. The installer remembers the existing Start shortcut's location for updates. For an unattended install, use `install-windows.ps1 -InstallDirectory 'C:\your\chosen\folder' -NoLaunch`. Protected locations such as Program Files require administrator access; the default folder does not.
 
 ## Apple Silicon and Intel Macs
 
