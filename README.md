@@ -1,4 +1,10 @@
-[![CI](https://github.com/aradzie/keybr.com/actions/workflows/ci.yml/badge.svg)](https://github.com/aradzie/keybr.com/actions/workflows/ci.yml)
+## Keybr Desktop — your personal typing computer
+
+This fork includes an offline Tauri app for Windows, Apple Silicon and Intel Macs (macOS 12+), and Fedora GNOME. It keeps Keybr's lessons and statistics, with no ads or account required.
+
+**[Install and run the desktop app](DESKTOP-QUICKSTART.md)** · [Desktop details](desktop/README.md)
+
+The upstream project documentation follows.
 
 # [keybr.com](https://www.keybr.com/) is not (just) a typing test
 

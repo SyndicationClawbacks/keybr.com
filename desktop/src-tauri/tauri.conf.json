@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Keybr Desktop",
+  "version": "0.1.0",
+  "identifier": "io.github.syndicationclawbacks.keybr",
+  "build": {
+    "beforeDevCommand": "npm run build:web",
+    "beforeBuildCommand": "npm run build:web",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Keybr Desktop",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 720,
+        "minHeight": 560,
+        "create": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost; media-src 'self' data: blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Education",
+    "shortDescription": "Offline touch-typing practice",
+    "longDescription": "Independent offline desktop adaptation of Keybr. All lessons are bundled; progress is stored locally.",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "macOS": {
+      "minimumSystemVersion": "12.0",
+      "signingIdentity": "-"
+    },
+    "windows": {
+      "webviewInstallMode": { "type": "offlineInstaller" },
+      "nsis": { "installMode": "currentUser" }
+    },
+    "linux": {
+      "rpm": { "depends": ["webkit2gtk4.1", "gtk3"] }
+    },
+    "license": "AGPL-3.0-only",
+    "licenseFile": "../../LICENSE"
+  }
+}
