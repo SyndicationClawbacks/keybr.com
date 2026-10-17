@@ -12,6 +12,8 @@ History uses Keybr's IndexedDB storage; settings and themes use localStorage. Ke
 
 Statistics links to these native backups rather than trying to download through a browser. Resetting statistics has an explicit in-app confirmation. A toast host displays upstream save errors.
 
+Ctrl+W on Windows/Linux and Command+W on macOS request a normal native window close, including while a lesson or editable field has focus. The handler runs only inside Tauri and captures the shortcut before lesson input processing; browser previews retain their browser shortcuts.
+
 ## Building
 
 Install the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/) and Rust. The root build scripts select/download checksum-verified Node 26.9, install both npm lockfiles with `npm ci`, then build a release app using the committed Cargo lockfile.
@@ -30,9 +32,10 @@ For frontend development, install root and desktop dependencies, then `npm --pre
 | ------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | Windows      | Windows with MSVC, SDK and Rust                              | Windows 10/11 with WebView2                                            |
 | Mac          | macOS 13.5+ with Xcode tools and Rust                        | Target: macOS 12 Monterey+, Intel and Apple Silicon                    |
-| Fedora GNOME | Fedora with GTK3/WebKitGTK 4.1 development packages and Rust | Compatible Fedora libraries; build on the target machine when possible |
+| Ubuntu GNOME | Ubuntu 26.04 LTS with GTK3/WebKitGTK 4.1 development packages and Rust | Ubuntu 26.04 with WebKitGTK 4.1; build on the target machine when possible |
+| Fedora GNOME | Fedora with GTK3/WebKitGTK 4.1 development packages and Rust | Compatible Fedora libraries; the same Linux scripts apply |
 
-The universal Mac app embeds both CPU architectures and targets macOS 12.0. Babel/core-js and Lightning CSS target Safari 15.0. Node 26 itself requires [macOS 13.5+](https://github.com/nodejs/node/blob/v26.9.0/BUILDING.md#platform-list), so building and running have different requirements. Actual Mac and Fedora native launch, audio and dialog behavior require those machines; a Windows build cannot establish that compatibility.
+The universal Mac app embeds both CPU architectures and targets macOS 12.0. Babel/core-js and Lightning CSS target Safari 15.0. Node 26 itself requires [macOS 13.5+](https://github.com/nodejs/node/blob/v26.9.0/BUILDING.md#platform-list), so building and running have different requirements. Actual Mac and Linux native launch, audio and dialog behavior require those machines; a Windows build cannot establish that compatibility. The optional Linux packaging workflow uses Ubuntu 22.04 as an older library baseline, not as evidence of Ubuntu 26.04 runtime verification.
 
 ## Local validation and GitHub policy
 
@@ -40,7 +43,9 @@ No desktop smoke-test files or GitHub test jobs are created. The existing workfl
 
 Local checks include production bundling, offline module/asset audit, TypeScript compilation, script syntax checks and native Windows compilation. Native interactive verification is performed separately from GitHub.
 
-Verified on the Windows workstation: release compilation, per-user install and update, Start shortcut, native launch, practice/settings rendering, native backup export, and theme persistence after replacing the executable and restarting. All 70 upstream packages compile; the eight existing history/settings checks pass. Full lesson completion, backup import, audio, and native Mac/Fedora behavior are still unverified.
+Verified on the Windows workstation: release compilation, per-user install and update, Start shortcut, native launch, practice/settings rendering, native backup export, and theme persistence after replacing the executable and restarting. All 70 upstream packages compile; the eight existing history/settings checks pass. Full lesson completion, backup import, audio, and native Mac/Linux behavior are still unverified.
+
+For the close-window shortcut update, desktop TypeScript, changed-source ESLint, formatting, Bash syntax and the production frontend/native Windows builds pass. The installed executable matches the release build, and Ctrl+W was verified to close its practice window. Command+W on Mac and Ctrl+W on Linux still need native verification.
 
 ## Offline boundaries
 

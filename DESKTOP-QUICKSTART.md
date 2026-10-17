@@ -2,6 +2,8 @@
 
 Your personal typing computer. Same Keybr lessons, settings, typing tests and statistics; all content and progress stay on your device. No ads, account, multiplayer or scoreboards.
 
+Close the app window with **Ctrl+W** on Windows/Linux or **Command+W** on Mac. These shortcuts also work while a lesson or settings field has focus.
+
 ## Windows
 
 From this checkout, run in PowerShell:
@@ -32,12 +34,13 @@ The first run builds a universal app (Apple Silicon + Intel), installs it in `~/
 
 The app targets macOS 12.0. The frontend targets Safari 15 and includes compatibility polyfills. Builds are ad-hoc signed, not notarized; for a downloaded app macOS may require **Open Anyway** in Privacy & Security after an initial launch attempt. Native behavior on your Macs still needs checking.
 
-## Fedora GNOME
+## Ubuntu 26.04 LTS (GNOME)
 
 Install build prerequisites once:
 
 ```sh
-sudo dnf install gcc-c++ make pkgconf-pkg-config openssl-devel webkit2gtk4.1-devel gtk3-devel libappindicator-gtk3-devel librsvg2-devel patchelf libatomic
+sudo apt update
+sudo apt install build-essential curl wget file pkg-config libssl-dev libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev libayatana-appindicator3-dev librsvg2-dev patchelf libatomic1
 ```
 
 Install Rust from [rustup.rs](https://rustup.rs/), then:
@@ -48,7 +51,11 @@ bash run-linux.sh
 
 It builds and installs into `~/.local/share/keybr-desktop` (or `$XDG_DATA_HOME/keybr-desktop`) and adds **Keybr Desktop** to GNOME Activities. Pin it to the dash if you like. Future launches need no compiler, Node or terminal.
 
-For a prebuilt Linux release, extract it and run `bash install-linux.sh`. It needs the same processor architecture and compatible system libraries. On Fedora, runtime packages are `webkit2gtk4.1 gtk3 libappindicator-gtk3`. Linux has not been exercised on a Fedora machine in this workspace.
+For a prebuilt Linux release, extract it and run `bash install-linux.sh`. It needs the same processor architecture and compatible system libraries. On Ubuntu, install runtime dependencies with `sudo apt install libwebkit2gtk-4.1-0 libayatana-appindicator3-1`; GTK is included through these dependencies. Building directly on your Ubuntu computer avoids depending on a binary built for another distribution.
+
+Ubuntu 26.04 provides the required [WebKitGTK 4.1 runtime](https://packages.ubuntu.com/resolute/libwebkit2gtk-4.1-0). The build requirements follow the [Tauri Linux prerequisites](https://v2.tauri.app/start/prerequisites/#linux). Native launch, typing, sound and backup dialogs still need verification on Ubuntu; they have not been exercised on a Linux machine in this workspace.
+
+Fedora remains supported by the same scripts. Its build packages are `gcc-c++ make pkgconf-pkg-config openssl-devel webkit2gtk4.1-devel gtk3-devel libappindicator-gtk3-devel librsvg2-devel patchelf libatomic` (install with `sudo dnf install`); runtime packages are `webkit2gtk4.1 gtk3 libappindicator-gtk3`.
 
 ## Updating and moving between computers
 

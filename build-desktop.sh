@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# macOS Bash 3.2 and Fedora Bash. Build once; installed apps need no toolchain.
+# macOS Bash 3.2 and Linux Bash. Build once; installed apps need no toolchain.
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 repo="$PWD"
@@ -22,6 +22,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 command -v cargo >/dev/null || { printf 'Install Rust from https://rustup.rs/ and rerun.\n' >&2; exit 1; }
 if [ "$platform" = linux ]; then
   pkg-config --exists gtk+-3.0 webkit2gtk-4.1 openssl || {
+    printf 'On Ubuntu run: sudo apt update && sudo apt install build-essential curl wget file pkg-config libssl-dev libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev libayatana-appindicator3-dev librsvg2-dev patchelf libatomic1\n' >&2
     printf 'On Fedora run: sudo dnf install gcc-c++ make pkgconf-pkg-config openssl-devel webkit2gtk4.1-devel gtk3-devel libappindicator-gtk3-devel librsvg2-devel patchelf libatomic\n' >&2
     exit 1
   }

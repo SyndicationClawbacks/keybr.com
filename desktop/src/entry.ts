@@ -3,8 +3,10 @@ import "core-js/stable";
 import "@keybr/themes/lib/index.less";
 import "./desktop.css";
 import { installNetworkPolicy } from "./network-policy.mjs";
+import { installWindowShortcuts } from "./window-shortcuts.ts";
 
 installNetworkPolicy();
+installWindowShortcuts();
 
 import("./main.tsx")
   .then(({ main }) => main())

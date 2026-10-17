@@ -15,7 +15,7 @@ source_dir="$(cd -- "$(dirname -- "$source_binary")" && pwd)"
 chmod +x "$source_binary"
 libraries="$(ldd "$source_binary")" || { printf 'This binary is not compatible with this Linux machine. Build it locally.\n' >&2; exit 1; }
 if printf '%s\n' "$libraries" | grep -q 'not found'; then
-  printf 'Missing runtime libraries. On Fedora: sudo dnf install webkit2gtk4.1 gtk3 libappindicator-gtk3\n' >&2
+  printf 'Missing runtime libraries.\nOn Ubuntu: sudo apt install libwebkit2gtk-4.1-0 libayatana-appindicator3-1\nOn Fedora: sudo dnf install webkit2gtk4.1 gtk3 libappindicator-gtk3\nIf libraries are still missing or incompatible, build on this machine.\n' >&2
   exit 1
 fi
 data_dir="${XDG_DATA_HOME:-$HOME/.local/share}"
